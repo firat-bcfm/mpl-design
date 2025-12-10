@@ -1,0 +1,51 @@
+@Library('mpl') _
+
+/**
+ * Ozkan Production Pipeline
+ *
+ * This Jenkinsfile uses the OzkanProdPipeline shared library
+ * to deploy to the production environment with manual approval.
+ */
+
+OzkanProdPipeline {
+    // Maven Configuration
+    maven.tool_version = 'Maven 3'
+    maven.settings_path = ''  // Optional: path to settings.xml
+
+    // Deployment Configuration
+    deploy.prod_host = 'prod.ozkan.com'
+    deploy.prod_port = '8080'
+    deploy.backup_path = '/opt/backups/ozkan-prod'
+
+    // SSH Deployment
+    deploy.ssh_enabled = false
+    deploy.ssh_user = 'deploy'
+    deploy.path = '/opt/ozkan-prod'
+
+    // Commands for controlling the application
+    // deploy.stop_command = 'ssh deploy@prod.ozkan.com "systemctl stop ozkan-prod"'
+    // deploy.start_command = 'ssh deploy@prod.ozkan.com "systemctl start ozkan-prod"'
+
+    // Rollback Configuration
+    deploy.auto_rollback = true
+
+    // Smoke Test Configuration
+    smoketest.endpoints = ['/health', '/api/status', '/api/info']
+    smoketest.max_retries = 20
+    smoketest.retry_delay = 10  // seconds
+    smoketest.business_checks_enabled = false
+
+    // Validation Configuration
+    validation.check_database = false
+    validation.check_dependencies = false
+    validation.check_logs = false
+    validation.check_metrics = false
+    validation.auto_rollback = true
+
+    // Security Configuration
+    security.enabled = false
+
+    // Test Configuration
+    test.integration_enabled = false
+    test.coverage_threshold = 0  // percentage
+}

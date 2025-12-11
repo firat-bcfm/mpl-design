@@ -13,7 +13,7 @@ OzkanDevPipeline {
     // ORTAK AYARLAR (Firat ile aynı)
     slackChannel = '#team-deployments'
     dockerRegistry = 'docker.io/company'
-    grafanaUrl = 'https://grafana.company.com'
+    grafanaUrl = 'https://grafana.ozkandev.com'
     minTestCoverage = '80%'
     showGitInfo = true
 

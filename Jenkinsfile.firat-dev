@@ -13,9 +13,10 @@ FiratDevPipeline {
     // ORTAK AYARLAR (Ozkan ile aynı)
     slackChannel = '#team-deployments'
     dockerRegistry = 'docker.io/company'
-    grafanaUrl = 'https://grafana.company.com'
+    grafanaUrl = 'https://grafana.firatdev.com'
     minTestCoverage = '80%'
     showGitInfo = true
+    CommonTrivyConfig.firatdev()
 
     // TRIVY: Otomatik preset config kullanılır (enabled=true, scanType='fs', severity='HIGH,CRITICAL')
     // Override için: 'trivy.enabled' = false, 'trivy.severity' = 'CRITICAL' gibi değerler ekle

@@ -16,4 +16,11 @@ FiratDevPipeline {
     grafanaUrl = 'https://grafana.company.com'
     minTestCoverage = '80%'
     showGitInfo = true
+
+    // TRIVY SECURITY SCAN - FIRAT Özel Ayarlar
+    'trivy.enabled' = true
+    'trivy.scanType' = 'fs'  // filesystem scan
+    'trivy.severity' = 'HIGH,CRITICAL'
+    'trivy.exitCode' = '0'  // DEV'de fail etme
+    'trivy.format' = 'table'
 }

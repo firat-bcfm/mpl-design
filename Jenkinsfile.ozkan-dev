@@ -16,4 +16,11 @@ OzkanDevPipeline {
     grafanaUrl = 'https://grafana.company.com'
     minTestCoverage = '80%'
     showGitInfo = true
+
+    // TRIVY SECURITY SCAN - OZKAN Özel Ayarlar
+    'trivy.enabled' = true
+    'trivy.scanType' = 'image'  // Docker image scan
+    'trivy.severity' = 'MEDIUM,HIGH,CRITICAL'
+    'trivy.exitCode' = '0'  // DEV'de fail etme
+    'trivy.format' = 'json'  // JSON format
 }

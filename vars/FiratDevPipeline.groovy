@@ -10,7 +10,7 @@ def call(body) {
     body()
 
     pipeline {
-        agent any
+        agent { label 'built-in' }
 
         stages {
             stage('1. Checkout') {

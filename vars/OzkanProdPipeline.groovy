@@ -17,7 +17,13 @@ def call(body) {
         'minTestCoverage': config.minTestCoverage ?: '90%',
         'deploy.prod_host': config.'deploy.prod_host' ?: 'prod.ozkan.com',
         'deploy.prod_port': config.'deploy.prod_port' ?: '443',
-        'smoketest.endpoints': config.'smoketest.endpoints' ?: ['/health', '/api/status']
+        'smoketest.endpoints': config.'smoketest.endpoints' ?: ['/health', '/api/status'],
+        // Trivy Security Scan - PRODUCTION
+        'trivy.enabled': config.'trivy.enabled',
+        'trivy.scanType': config.'trivy.scanType',
+        'trivy.severity': config.'trivy.severity',
+        'trivy.exitCode': config.'trivy.exitCode',
+        'trivy.format': config.'trivy.format'
     ]
 
     node {
@@ -73,6 +79,44 @@ def call(body) {
 
             echo "═══════════════════════════════════════"
             echo ""
+        }
+
+        // Stage 3.5: Security Scan (Trivy) - PRODUCTION preset
+        stage('3.5. Security Scan') {
+            // OZKAN PROD preset config - STRICT for production
+            def trivyConfig = [
+                enabled: true,
+                scanType: 'image',
+                severity: 'CRITICAL',
+                exitCode: '1',  // Fail pipeline on CRITICAL findings
+                format: 'json'
+            ]
+
+            // Override with user config if provided
+            if (CFG.'trivy.enabled' != null) {
+                trivyConfig.enabled = CFG.'trivy.enabled'
+            }
+            if (CFG.'trivy.scanType') {
+                trivyConfig.scanType = CFG.'trivy.scanType'
+            }
+            if (CFG.'trivy.severity') {
+                trivyConfig.severity = CFG.'trivy.severity'
+            }
+            if (CFG.'trivy.exitCode') {
+                trivyConfig.exitCode = CFG.'trivy.exitCode'
+            }
+            if (CFG.'trivy.format') {
+                trivyConfig.format = CFG.'trivy.format'
+            }
+
+            TrivyScan(
+                enabled: trivyConfig.enabled,
+                scanType: trivyConfig.scanType,
+                severity: trivyConfig.severity,
+                exitCode: trivyConfig.exitCode,
+                format: trivyConfig.format,
+                projectName: CFG.projectName
+            )
         }
 
         stage('4. Deploy') {

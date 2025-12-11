@@ -2,17 +2,21 @@
 
 /**
  * Firat Production Pipeline
+ * Strict production settings with security scanning
  */
 
 FiratProdPipeline {
-    // Project
+    // Proje özeli
     projectName = 'firat-app'
-    customMessage = 'Production deployment successful!'
+    customMessage = 'Firat PRODUCTION deployment successful!'
 
-    // Common settings
-    slackChannel = '#production-deploys'
+    // PRODUCTION SETTINGS
+    slackChannel = '#production-alerts'
     dockerRegistry = 'docker.io/company'
-    grafanaUrl = 'https://grafana.company.com'
+    grafanaUrl = 'https://grafana.firatprod.com'
     minTestCoverage = '90%'
     showGitInfo = true
+
+    // TRIVY: Otomatik PRODUCTION preset kullanılır (enabled=true, scanType='image', severity='CRITICAL', exitCode='1')
+    // Override için: 'trivy.exitCode' = '0', 'trivy.severity' = 'HIGH,CRITICAL' gibi değerler ekle
 }

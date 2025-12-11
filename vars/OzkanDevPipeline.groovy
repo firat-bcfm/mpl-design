@@ -28,37 +28,43 @@ def call(body) {
         // Stage 1: Checkout
         stage('1. Checkout') {
             def moduleCode = libraryResource('com/ozkan/pipeline/modules/Checkout/DevCheckout.groovy')
-            evaluate(moduleCode)
+            def binding = new Binding([CFG: CFG, env: env])
+            new GroovyShell(binding).evaluate(moduleCode)
         }
 
         // Stage 2: Build
         stage('2. Build') {
             def moduleCode = libraryResource('com/ozkan/pipeline/modules/Build/DevBuild.groovy')
-            evaluate(moduleCode)
+            def binding = new Binding([CFG: CFG, env: env])
+            new GroovyShell(binding).evaluate(moduleCode)
         }
 
         // Stage 3: Test
         stage('3. Test') {
             def moduleCode = libraryResource('com/ozkan/pipeline/modules/Test/DevTest.groovy')
-            evaluate(moduleCode)
+            def binding = new Binding([CFG: CFG, env: env])
+            new GroovyShell(binding).evaluate(moduleCode)
         }
 
         // Stage 4: Deploy
         stage('4. Deploy') {
             def moduleCode = libraryResource('com/ozkan/pipeline/modules/Deploy/DevDeploy.groovy')
-            evaluate(moduleCode)
+            def binding = new Binding([CFG: CFG, env: env])
+            new GroovyShell(binding).evaluate(moduleCode)
         }
 
         // Stage 5: Smoke Test
         stage('5. Smoke Test') {
             def moduleCode = libraryResource('com/ozkan/pipeline/modules/SmokeTest/DevSmokeTest.groovy')
-            evaluate(moduleCode)
+            def binding = new Binding([CFG: CFG, env: env])
+            new GroovyShell(binding).evaluate(moduleCode)
         }
 
         // Stage 6: Validation
         stage('6. Post-Deploy Validation') {
             def moduleCode = libraryResource('com/ozkan/pipeline/modules/PostDeployValidation/DevValidation.groovy')
-            evaluate(moduleCode)
+            def binding = new Binding([CFG: CFG, env: env])
+            new GroovyShell(binding).evaluate(moduleCode)
         }
 
         // Success message

@@ -23,32 +23,38 @@ def call(body) {
     node {
         stage('1. Checkout') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Checkout/ProdCheckout.groovy')
-            evaluate(moduleCode)
+            def binding = new Binding([CFG: CFG, env: env])
+            new GroovyShell(binding).evaluate(moduleCode)
         }
 
         stage('2. Build') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Build/ProdBuild.groovy')
-            evaluate(moduleCode)
+            def binding = new Binding([CFG: CFG, env: env])
+            new GroovyShell(binding).evaluate(moduleCode)
         }
 
         stage('3. Test') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Test/ProdTest.groovy')
-            evaluate(moduleCode)
+            def binding = new Binding([CFG: CFG, env: env])
+            new GroovyShell(binding).evaluate(moduleCode)
         }
 
         stage('4. Deploy') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Deploy/ProdDeploy.groovy')
-            evaluate(moduleCode)
+            def binding = new Binding([CFG: CFG, env: env])
+            new GroovyShell(binding).evaluate(moduleCode)
         }
 
         stage('5. Smoke Test') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/SmokeTest/ProdSmokeTest.groovy')
-            evaluate(moduleCode)
+            def binding = new Binding([CFG: CFG, env: env])
+            new GroovyShell(binding).evaluate(moduleCode)
         }
 
         stage('6. Post-Deploy Validation') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/PostDeployValidation/ProdValidation.groovy')
-            evaluate(moduleCode)
+            def binding = new Binding([CFG: CFG, env: env])
+            new GroovyShell(binding).evaluate(moduleCode)
         }
 
         echo ""

@@ -1,0 +1,93 @@
+pipeline {
+    agent any
+
+    parameters {
+        booleanParam(name: 'SKIP_APPROVAL', defaultValue: false, description: 'Skip manual approval')
+    }
+
+    environment {
+        PROJECT_NAME = 'firat-prod'
+        ENVIRONMENT = 'production'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "========================================="
+                echo "FIRAT PROD - Step 1/6: Checkout"
+                echo "========================================="
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "========================================="
+                echo "FIRAT PROD - Step 2/6: Build"
+                echo "========================================="
+                script {
+                    sh 'mvn clean package -DskipTests=false'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo "========================================="
+                echo "FIRAT PROD - Step 3/6: Test"
+                echo "========================================="
+                script {
+                    sh 'mvn test jacoco:report'
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "========================================="
+                echo "FIRAT PROD - Step 4/6: Deploy"
+                echo "========================================="
+                script {
+                    if (!params.SKIP_APPROVAL) {
+                        input message: 'Deploy to PRODUCTION?', ok: 'Deploy'
+                    }
+                    echo "Deploying to prod.firat.com"
+                    // Add deployment commands here
+                }
+            }
+        }
+
+        stage('Smoke Test') {
+            steps {
+                echo "========================================="
+                echo "FIRAT PROD - Step 5/6: Smoke Test"
+                echo "========================================="
+                script {
+                    echo "Running production smoke tests..."
+                    // sh 'curl https://prod.firat.com/health'
+                }
+            }
+        }
+
+        stage('Validation') {
+            steps {
+                echo "========================================="
+                echo "FIRAT PROD - Step 6/6: Validation"
+                echo "========================================="
+                script {
+                    echo "Validating production deployment..."
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✓ FIRAT PROD Pipeline - SUCCESS"
+        }
+        failure {
+            echo "✗ FIRAT PROD Pipeline - FAILED"
+        }
+    }
+}

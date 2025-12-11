@@ -1,0 +1,86 @@
+pipeline {
+    agent any
+
+    environment {
+        PROJECT_NAME = 'firat-dev'
+        ENVIRONMENT = 'development'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "========================================="
+                echo "FIRAT DEV - Step 1/6: Checkout"
+                echo "========================================="
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "========================================="
+                echo "FIRAT DEV - Step 2/6: Build"
+                echo "========================================="
+                script {
+                    sh 'mvn clean package -DskipTests=false'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo "========================================="
+                echo "FIRAT DEV - Step 3/6: Test"
+                echo "========================================="
+                script {
+                    sh 'mvn test'
+                    junit 'target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "========================================="
+                echo "FIRAT DEV - Step 4/6: Deploy"
+                echo "========================================="
+                script {
+                    echo "Deploying to dev.firat.local:8080"
+                    // Add deployment commands here
+                }
+            }
+        }
+
+        stage('Smoke Test') {
+            steps {
+                echo "========================================="
+                echo "FIRAT DEV - Step 5/6: Smoke Test"
+                echo "========================================="
+                script {
+                    echo "Running smoke tests..."
+                    // sh 'curl http://dev.firat.local:8080/health'
+                }
+            }
+        }
+
+        stage('Validation') {
+            steps {
+                echo "========================================="
+                echo "FIRAT DEV - Step 6/6: Validation"
+                echo "========================================="
+                script {
+                    echo "Validating deployment..."
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✓ FIRAT DEV Pipeline - SUCCESS"
+        }
+        failure {
+            echo "✗ FIRAT DEV Pipeline - FAILED"
+        }
+    }
+}

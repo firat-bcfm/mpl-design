@@ -17,7 +17,13 @@ def call(body) {
         'minTestCoverage': config.minTestCoverage ?: '80%',
         'deploy.dev_host': config.'deploy.dev_host' ?: 'dev.ozkan.local',
         'deploy.dev_port': config.'deploy.dev_port' ?: '8080',
-        'smoketest.endpoints': config.'smoketest.endpoints' ?: ['/health', '/api/status']
+        'smoketest.endpoints': config.'smoketest.endpoints' ?: ['/health', '/api/status'],
+        // Trivy Security Scan
+        'trivy.enabled': config.'trivy.enabled',
+        'trivy.scanType': config.'trivy.scanType',
+        'trivy.severity': config.'trivy.severity',
+        'trivy.exitCode': config.'trivy.exitCode',
+        'trivy.format': config.'trivy.format'
     ]
 
     node {
@@ -71,6 +77,38 @@ def call(body) {
 
             echo "═══════════════════════════════════════"
             echo ""
+        }
+
+        // Stage 3.5: Security Scan (Trivy) - Reusable module
+        stage('3.5. Security Scan') {
+            // Use custom config if provided, otherwise use OZKAN DEV preset
+            def trivyConfig = CommonTrivyConfig.ozkanDev()
+
+            // Override with user config if provided
+            if (CFG.'trivy.enabled' != null) {
+                trivyConfig.enabled = CFG.'trivy.enabled'
+            }
+            if (CFG.'trivy.scanType') {
+                trivyConfig.scanType = CFG.'trivy.scanType'
+            }
+            if (CFG.'trivy.severity') {
+                trivyConfig.severity = CFG.'trivy.severity'
+            }
+            if (CFG.'trivy.exitCode') {
+                trivyConfig.exitCode = CFG.'trivy.exitCode'
+            }
+            if (CFG.'trivy.format') {
+                trivyConfig.format = CFG.'trivy.format'
+            }
+
+            TrivyScan(
+                enabled: trivyConfig.enabled,
+                scanType: trivyConfig.scanType,
+                severity: trivyConfig.severity,
+                exitCode: trivyConfig.exitCode,
+                format: trivyConfig.format,
+                projectName: CFG.projectName
+            )
         }
 
         stage('4. Deploy') {

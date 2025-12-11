@@ -17,10 +17,6 @@ FiratDevPipeline {
     minTestCoverage = '80%'
     showGitInfo = true
 
-    // TRIVY SECURITY SCAN - FIRAT Özel Ayarlar
-    'trivy.enabled' = true
-    'trivy.scanType' = 'fs'  // filesystem scan
-    'trivy.severity' = 'HIGH,CRITICAL'
-    'trivy.exitCode' = '0'  // DEV'de fail etme
-    'trivy.format' = 'table'
+    // TRIVY: Otomatik CommonTrivyConfig.firatDev() kullanılır
+    // Override için: 'trivy.enabled' = false gibi değerler ekle
 }

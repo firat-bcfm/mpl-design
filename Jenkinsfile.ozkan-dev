@@ -1,2 +1,6 @@
 @Library('mpl') _
-OzkanDevPipeline {}
+
+OzkanDevPipeline {
+    projectName = 'mpl-design'
+    customMessage = 'özkan edge blue içer'
+}

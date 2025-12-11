@@ -81,8 +81,14 @@ def call(body) {
 
         // Stage 3.5: Security Scan (Trivy) - Reusable module
         stage('3.5. Security Scan') {
-            // Use custom config if provided, otherwise use OZKAN DEV preset
-            def trivyConfig = CommonTrivyConfig.ozkanDev()
+            // OZKAN DEV preset config
+            def trivyConfig = [
+                enabled: true,
+                scanType: 'image',
+                severity: 'MEDIUM,HIGH,CRITICAL',
+                exitCode: '0',
+                format: 'json'
+            ]
 
             // Override with user config if provided
             if (CFG.'trivy.enabled' != null) {

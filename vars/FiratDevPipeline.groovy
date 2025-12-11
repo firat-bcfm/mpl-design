@@ -95,8 +95,14 @@ def call(body) {
 
         // Stage 3.5: Security Scan (Trivy) - Reusable module
         stage('3.5. Security Scan') {
-            // Use custom config if provided, otherwise use FIRAT DEV preset
-            def trivyConfig = CommonTrivyConfig.firatDev()
+            // FIRAT DEV preset config
+            def trivyConfig = [
+                enabled: true,
+                scanType: 'fs',
+                severity: 'HIGH,CRITICAL',
+                exitCode: '0',
+                format: 'table'
+            ]
 
             // Override with user config if provided
             if (CFG.'trivy.enabled' != null) {

@@ -1,3 +1,0 @@
-@Library('mpl') _
-
-MPLPipeline {}

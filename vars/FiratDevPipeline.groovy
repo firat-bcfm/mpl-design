@@ -26,45 +26,42 @@ def call(body) {
 
     // Pipeline execution
     node {
+        // Make CFG available to evaluated modules
+        binding.setVariable('CFG', CFG)
+
         // Stage 1: Checkout
         stage('1. Checkout') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Checkout/DevCheckout.groovy')
-            this.binding.setVariable('CFG', CFG)
             evaluate(moduleCode)
         }
 
         // Stage 2: Build
         stage('2. Build') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Build/DevBuild.groovy')
-            this.binding.setVariable('CFG', CFG)
             evaluate(moduleCode)
         }
 
         // Stage 3: Test
         stage('3. Test') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Test/DevTest.groovy')
-            this.binding.setVariable('CFG', CFG)
             evaluate(moduleCode)
         }
 
         // Stage 4: Deploy
         stage('4. Deploy') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Deploy/DevDeploy.groovy')
-            this.binding.setVariable('CFG', CFG)
             evaluate(moduleCode)
         }
 
         // Stage 5: Smoke Test
         stage('5. Smoke Test') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/SmokeTest/DevSmokeTest.groovy')
-            this.binding.setVariable('CFG', CFG)
             evaluate(moduleCode)
         }
 
         // Stage 6: Validation
         stage('6. Post-Deploy Validation') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/PostDeployValidation/DevValidation.groovy')
-            this.binding.setVariable('CFG', CFG)
             evaluate(moduleCode)
         }
 

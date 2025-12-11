@@ -45,7 +45,6 @@ def call(body) {
 
         options {
             buildDiscarder(logRotator(numToKeepStr: '10'))
-            timestamps()
         }
 
         stages {
@@ -116,16 +115,18 @@ def call(body) {
 
         post {
             success {
-                echo ""
-                echo "═══════════════════════════════════════"
-                echo "✓ FIRAT DEV PIPELINE - SUCCESS"
-                echo "═══════════════════════════════════════"
-                echo "Build: #${env.BUILD_NUMBER}"
-                echo "Duration: ${currentBuild.durationString.replace(' and counting', '')}"
-                if (env.DEPLOY_URL) {
-                    echo "Deployment: ${env.DEPLOY_URL}"
+                script {
+                    echo ""
+                    echo "═══════════════════════════════════════"
+                    echo "✓ FIRAT DEV PIPELINE - SUCCESS"
+                    echo "═══════════════════════════════════════"
+                    echo "Build: #${env.BUILD_NUMBER}"
+                    echo "Duration: ${currentBuild.durationString.replace(' and counting', '')}"
+                    if (env.DEPLOY_URL) {
+                        echo "Deployment: ${env.DEPLOY_URL}"
+                    }
+                    echo "═══════════════════════════════════════"
                 }
-                echo "═══════════════════════════════════════"
             }
             failure {
                 echo ""

@@ -17,6 +17,6 @@ OzkanDevPipeline {
     minTestCoverage = '80%'
     showGitInfo = true
 
-    // TRIVY: Otomatik CommonTrivyConfig.ozkanDev() kullanılır
-    // Override için: 'trivy.severity' = 'CRITICAL' gibi değerler ekle
+    // TRIVY: Otomatik preset config kullanılır (enabled=true, scanType='image', severity='MEDIUM,HIGH,CRITICAL')
+    // Override için: 'trivy.enabled' = false, 'trivy.severity' = 'CRITICAL' gibi değerler ekle
 }

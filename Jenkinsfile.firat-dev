@@ -17,6 +17,6 @@ FiratDevPipeline {
     minTestCoverage = '80%'
     showGitInfo = true
 
-    // TRIVY: Otomatik CommonTrivyConfig.firatDev() kullanılır
-    // Override için: 'trivy.enabled' = false gibi değerler ekle
+    // TRIVY: Otomatik preset config kullanılır (enabled=true, scanType='fs', severity='HIGH,CRITICAL')
+    // Override için: 'trivy.enabled' = false, 'trivy.severity' = 'CRITICAL' gibi değerler ekle
 }

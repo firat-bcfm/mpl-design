@@ -1,13 +1,18 @@
 /**
  * Ozkan Production Pipeline - MODULAR VERSION
  */
+import groovy.transform.Field
+
+@Field
+def CFG
+
 def call(body) {
     def config = [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
     body()
 
-    def CFG = [
+    CFG = [
         'projectName': config.projectName ?: 'ozkan-app',
         'slackChannel': config.slackChannel ?: '#production-deploys',
         'dockerRegistry': config.dockerRegistry ?: '',
@@ -21,9 +26,6 @@ def call(body) {
     ]
 
     node {
-        // Make CFG available to evaluated modules
-        binding.setVariable('CFG', CFG)
-
         stage('1. Checkout') {
             def moduleCode = libraryResource('com/ozkan/pipeline/modules/Checkout/ProdCheckout.groovy')
             evaluate(moduleCode)

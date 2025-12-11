@@ -2,6 +2,11 @@
  * Firat Development Pipeline - MODULAR VERSION
  * Uses separate module files for each stage
  */
+import groovy.transform.Field
+
+@Field
+def CFG
+
 def call(body) {
     // Parse config
     def config = [:]
@@ -10,7 +15,7 @@ def call(body) {
     body()
 
     // Create CFG map with all configuration
-    def CFG = [
+    CFG = [
         'projectName': config.projectName ?: 'firat-app',
         'slackChannel': config.slackChannel ?: '#deployments',
         'dockerRegistry': config.dockerRegistry ?: '',
@@ -26,9 +31,6 @@ def call(body) {
 
     // Pipeline execution
     node {
-        // Make CFG available to evaluated modules
-        binding.setVariable('CFG', CFG)
-
         // Stage 1: Checkout
         stage('1. Checkout') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Checkout/DevCheckout.groovy')

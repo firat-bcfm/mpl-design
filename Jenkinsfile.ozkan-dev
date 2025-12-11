@@ -1,6 +1,19 @@
 @Library('mpl') _
 
+/**
+ * Ozkan Development Pipeline
+ * Uses common company-wide settings
+ */
+
 OzkanDevPipeline {
-    projectName = 'mpl-design'
+    // Proje özeli
+    projectName = 'ozkan-app'
     customMessage = 'özkan edge blue içer'
+
+    // ORTAK AYARLAR (Firat ile aynı)
+    slackChannel = '#team-deployments'
+    dockerRegistry = 'docker.io/company'
+    grafanaUrl = 'https://grafana.company.com'
+    minTestCoverage = '80%'
+    showGitInfo = true
 }

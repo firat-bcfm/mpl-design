@@ -9,16 +9,26 @@ def call(body) {
     body.delegate = config
     body()
 
+    // Get config values
+    def projectName = config.projectName ?: 'firat-app'
+    def slackChannel = config.slackChannel ?: '#deployments'
+    def dockerRegistry = config.dockerRegistry ?: ''
+    def grafanaUrl = config.grafanaUrl ?: ''
+    def showGitInfo = config.showGitInfo ?: false
+    def customMessage = config.customMessage ?: ''
+
     // Simple script-based pipeline without agent
     node {
         stage('1. Checkout') {
             echo ""
             echo "═══════════════════════════════════════"
-            echo "📥 STAGE 1: CHECKOUT"
+            echo "📥 FIRAT DEV - STAGE 1: CHECKOUT"
             echo "═══════════════════════════════════════"
-            echo "✓ Checking out code from repository..."
-            echo "✓ Branch: main"
-            echo "✓ Repository: github.com/firat-bcfm/mpl-design"
+            echo "✓ Project: ${projectName}"
+            if (showGitInfo) {
+                echo "✓ Branch: main"
+                echo "✓ Repository: github.com/firat-bcfm/mpl-design"
+            }
             echo "✓ Checkout completed successfully!"
             echo "═══════════════════════════════════════"
             echo ""
@@ -53,13 +63,14 @@ def call(body) {
         stage('4. Deploy') {
             echo ""
             echo "═══════════════════════════════════════"
-            echo "🚀 STAGE 4: DEPLOY TO DEV"
+            echo "🚀 FIRAT DEV - STAGE 4: DEPLOY"
             echo "═══════════════════════════════════════"
+            if (dockerRegistry) {
+                echo "✓ Docker Registry: ${dockerRegistry}"
+                echo "✓ Pushing image to registry..."
+            }
             echo "✓ Deploying to development environment..."
             echo "✓ Target: dev.firat.local:8080"
-            echo "✓ Stopping old application..."
-            echo "✓ Deploying new version..."
-            echo "✓ Starting application..."
             echo "✓ Deployment completed!"
             echo "═══════════════════════════════════════"
             echo ""
@@ -84,13 +95,16 @@ def call(body) {
         stage('6. Post-Deploy Validation') {
             echo ""
             echo "═══════════════════════════════════════"
-            echo "✅ STAGE 6: POST-DEPLOY VALIDATION"
+            echo "✅ FIRAT DEV - STAGE 6: VALIDATION"
             echo "═══════════════════════════════════════"
             echo "✓ Checking application health..."
-            echo "✓ Verifying database connections..."
-            echo "✓ Checking memory usage..."
-            echo "✓ Validating API responses..."
+            if (grafanaUrl) {
+                echo "✓ Monitoring: ${grafanaUrl}"
+            }
             echo "✓ All validations passed!"
+            if (customMessage) {
+                echo "✓ ${customMessage}"
+            }
             echo "═══════════════════════════════════════"
             echo ""
         }
@@ -100,8 +114,15 @@ def call(body) {
         echo "════════════════════════════════════════════════"
         echo "✓✓✓ FIRAT DEV PIPELINE - SUCCESS! ✓✓✓"
         echo "════════════════════════════════════════════════"
-        echo "Build Number: #${env.BUILD_NUMBER}"
-        echo "Deployment URL: http://dev.firat.local:8080"
+        echo "Project: ${projectName}"
+        echo "Build: #${env.BUILD_NUMBER}"
+        echo "Deployment: http://dev.firat.local:8080"
+        if (slackChannel) {
+            echo "Notification: ${slackChannel}"
+        }
+        if (grafanaUrl) {
+            echo "Monitoring: ${grafanaUrl}"
+        }
         echo "════════════════════════════════════════════════"
         echo ""
     }

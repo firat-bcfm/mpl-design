@@ -1,10 +1,19 @@
 @Library('mpl') _
 
 /**
- * Firat Development Pipeline - DEMO
- * Simple demo that shows 6-stage pipeline execution
+ * Firat Development Pipeline
+ * Uses common company-wide settings
  */
 
 FiratDevPipeline {
-    // Demo - no configuration needed
+    // Proje özeli
+    projectName = 'firat-app'
+    customMessage = 'Firat deployment başarılı!'
+
+    // ORTAK AYARLAR (Ozkan ile aynı)
+    slackChannel = '#team-deployments'
+    dockerRegistry = 'docker.io/company'
+    grafanaUrl = 'https://grafana.company.com'
+    minTestCoverage = '80%'
+    showGitInfo = true
 }

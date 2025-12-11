@@ -9,30 +9,26 @@
 
 FiratDevPipeline {
     // Maven Configuration
-    maven.tool_version = 'Maven 3'
-    maven.settings_path = ''  // Optional: path to settings.xml
+    setProperty('maven.tool_version', 'Maven 3')
+    setProperty('maven.settings_path', '')
 
     // Deployment Configuration
-    deploy.dev_host = 'dev.firat.local'
-    deploy.dev_port = '8080'
+    setProperty('deploy.dev_host', 'dev.firat.local')
+    setProperty('deploy.dev_port', '8080')
 
     // SSH Deployment (if enabled)
-    deploy.ssh_enabled = false
-    deploy.ssh_user = 'deploy'
-    deploy.path = '/opt/firat-dev'
-
-    // Commands for controlling the application
-    // deploy.stop_command = 'ssh deploy@dev.firat.local "systemctl stop firat-dev"'
-    // deploy.start_command = 'ssh deploy@dev.firat.local "systemctl start firat-dev"'
+    setProperty('deploy.ssh_enabled', false)
+    setProperty('deploy.ssh_user', 'deploy')
+    setProperty('deploy.path', '/opt/firat-dev')
 
     // Smoke Test Configuration
-    smoketest.endpoints = ['/health', '/api/status', '/api/info']
-    smoketest.max_retries = 10
-    smoketest.retry_delay = 5  // seconds
+    setProperty('smoketest.endpoints', ['/health', '/api/status', '/api/info'])
+    setProperty('smoketest.max_retries', 10)
+    setProperty('smoketest.retry_delay', 5)
 
     // Validation Configuration
-    validation.check_logs = false
+    setProperty('validation.check_logs', false)
 
     // Test Configuration
-    test.integration_enabled = false
+    setProperty('test.integration_enabled', false)
 }

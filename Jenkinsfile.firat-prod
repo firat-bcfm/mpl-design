@@ -1,2 +1,18 @@
 @Library('mpl') _
-FiratProdPipeline {}
+
+/**
+ * Firat Production Pipeline
+ */
+
+FiratProdPipeline {
+    // Project
+    projectName = 'firat-app'
+    customMessage = 'Production deployment successful!'
+
+    // Common settings
+    slackChannel = '#production-deploys'
+    dockerRegistry = 'docker.io/company'
+    grafanaUrl = 'https://grafana.company.com'
+    minTestCoverage = '90%'
+    showGitInfo = true
+}

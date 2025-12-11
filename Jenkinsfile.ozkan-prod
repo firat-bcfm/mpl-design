@@ -1,2 +1,18 @@
 @Library('mpl') _
-OzkanProdPipeline {}
+
+/**
+ * Ozkan Production Pipeline
+ */
+
+OzkanProdPipeline {
+    // Project
+    projectName = 'ozkan-app'
+    customMessage = 'özkan production live!'
+
+    // Common settings
+    slackChannel = '#production-deploys'
+    dockerRegistry = 'docker.io/company'
+    grafanaUrl = 'https://grafana.company.com'
+    minTestCoverage = '90%'
+    showGitInfo = true
+}

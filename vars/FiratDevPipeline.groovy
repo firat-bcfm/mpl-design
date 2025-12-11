@@ -93,64 +93,36 @@ def call(body) {
             echo ""
         }
 
-        // Stage 3.5: Security Scan (Trivy)
-        if (CFG.'trivy.enabled') {
-            stage('3.5. Security Scan') {
-                echo ""
-                echo "═══════════════════════════════════════"
-                echo "🔒 FIRAT DEV - TRIVY SECURITY SCAN"
-                echo "═══════════════════════════════════════"
+        // Stage 3.5: Security Scan (Trivy) - Reusable module
+        stage('3.5. Security Scan') {
+            // Use custom config if provided, otherwise use FIRAT DEV preset
+            def trivyConfig = CommonTrivyConfig.firatDev()
 
-                def scanType = CFG.'trivy.scanType'
-                def severity = CFG.'trivy.severity'
-                def exitCode = CFG.'trivy.exitCode'
-                def format = CFG.'trivy.format'
-
-                echo "✓ Scan Type: ${scanType}"
-                echo "✓ Severity Levels: ${severity}"
-                echo "✓ Output Format: ${format}"
-                echo ""
-
-                try {
-                    // Trivy scan command
-                    def trivyCmd = "trivy ${scanType} --severity ${severity} --exit-code ${exitCode} --format ${format}"
-
-                    if (scanType == 'fs') {
-                        trivyCmd += " ."
-                        echo "✓ Scanning filesystem for vulnerabilities..."
-                    } else if (scanType == 'image') {
-                        def imageName = "${CFG.projectName}:latest"
-                        trivyCmd += " ${imageName}"
-                        echo "✓ Scanning Docker image: ${imageName}"
-                    } else if (scanType == 'repo') {
-                        trivyCmd += " ."
-                        echo "✓ Scanning repository..."
-                    }
-
-                    echo ""
-                    echo "Running: ${trivyCmd}"
-                    echo "─────────────────────────────────────"
-
-                    // Mock Trivy output for demo
-                    echo "Total: 0 (HIGH: 0, CRITICAL: 0)"
-                    echo ""
-                    echo "✓ No vulnerabilities found!"
-
-                    // Real command would be:
-                    // sh(script: trivyCmd, returnStatus: false)
-
-                } catch (Exception e) {
-                    if (exitCode == '1') {
-                        error "Trivy scan failed with vulnerabilities: ${e.message}"
-                    } else {
-                        echo "⚠ Trivy scan found issues but continuing (exit-code=0)"
-                        echo "  ${e.message}"
-                    }
-                }
-
-                echo "═══════════════════════════════════════"
-                echo ""
+            // Override with user config if provided
+            if (CFG.'trivy.enabled' != null) {
+                trivyConfig.enabled = CFG.'trivy.enabled'
             }
+            if (CFG.'trivy.scanType') {
+                trivyConfig.scanType = CFG.'trivy.scanType'
+            }
+            if (CFG.'trivy.severity') {
+                trivyConfig.severity = CFG.'trivy.severity'
+            }
+            if (CFG.'trivy.exitCode') {
+                trivyConfig.exitCode = CFG.'trivy.exitCode'
+            }
+            if (CFG.'trivy.format') {
+                trivyConfig.format = CFG.'trivy.format'
+            }
+
+            TrivyScan(
+                enabled: trivyConfig.enabled,
+                scanType: trivyConfig.scanType,
+                severity: trivyConfig.severity,
+                exitCode: trivyConfig.exitCode,
+                format: trivyConfig.format,
+                projectName: CFG.projectName
+            )
         }
 
         // Stage 4: Deploy

@@ -1,25 +1,29 @@
 /**
  * Ozkan Dev - Checkout Module
- * Step 1/6: Source code checkout
+ * Step 1/6: Git checkout for development
  */
 
-echo "========================================="
-echo "Step 1/6: Checking out source code for OZKAN DEV..."
-echo "========================================="
+echo ""
+echo "═══════════════════════════════════════"
+echo "📥 OZKAN DEV - STAGE 1: CHECKOUT"
+echo "═══════════════════════════════════════"
 
-checkout scm
+def projectName = CFG.'projectName' ?: 'ozkan-app'
+def showGitInfo = CFG.'showGitInfo' ?: false
 
-// Get git info
-def gitCommit = sh(returnStdout: true, script: 'git log -1 --pretty=format:"%h - %an, %ar : %s"').trim()
-echo "Git Commit: ${gitCommit}"
+echo "✓ Project: ${projectName}"
 
-env.GIT_COMMIT_SHORT = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-env.BUILD_TIMESTAMP = sh(returnStdout: true, script: 'date -u +"%Y-%m-%dT%H:%M:%SZ"').trim()
+if (showGitInfo) {
+    try {
+        def gitBranch = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
+        def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+        echo "✓ Branch: ${gitBranch}"
+        echo "✓ Commit: ${gitCommit}"
+    } catch (Exception e) {
+        echo "✓ Repository: github.com/firat-bcfm/mpl-design"
+    }
+}
 
-echo "Build Info:"
-echo "  - Commit: ${env.GIT_COMMIT_SHORT}"
-echo "  - Timestamp: ${env.BUILD_TIMESTAMP}"
-echo "  - Branch: ${env.GIT_BRANCH ?: 'main'}"
-
-echo "✓ Checkout completed successfully"
-echo "========================================="
+echo "✓ Code checkout completed!"
+echo "═══════════════════════════════════════"
+echo ""

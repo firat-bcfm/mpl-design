@@ -1,53 +1,80 @@
+/**
+ * Ozkan Development Pipeline - MODULAR VERSION
+ * Uses separate module files for each stage
+ */
 def call(body) {
+    // Parse config
     def config = [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
     body()
 
-    // Get config values
-    def projectName = config.projectName ?: 'unknown-project'
-    def customMessage = config.customMessage ?: ''
+    // Create CFG map with all configuration
+    def CFG = [
+        'projectName': config.projectName ?: 'ozkan-app',
+        'slackChannel': config.slackChannel ?: '#deployments',
+        'dockerRegistry': config.dockerRegistry ?: '',
+        'grafanaUrl': config.grafanaUrl ?: '',
+        'showGitInfo': config.showGitInfo ?: false,
+        'customMessage': config.customMessage ?: '',
+        'minTestCoverage': config.minTestCoverage ?: '80%',
+        'deploy.dev_host': config.'deploy.dev_host' ?: 'dev.ozkan.local',
+        'deploy.dev_port': config.'deploy.dev_port' ?: '8080',
+        'smoketest.endpoints': config.'smoketest.endpoints' ?: ['/health', '/api/status']
+    ]
 
+    // Pipeline execution
     node {
+        // Stage 1: Checkout
         stage('1. Checkout') {
-            echo ""; echo "═══════════════════════════════════════"
-            echo "📥 OZKAN DEV - STAGE 1: CHECKOUT"; echo "═══════════════════════════════════════"
-            echo "✓ Project: ${projectName}"
-            echo "✓ Code checked out!"; echo "═══════════════════════════════════════"; echo ""
+            def moduleCode = libraryResource('com/ozkan/pipeline/modules/Checkout/DevCheckout.groovy')
+            evaluate(moduleCode)
         }
+
+        // Stage 2: Build
         stage('2. Build') {
-            echo ""; echo "═══════════════════════════════════════"
-            echo "🔨 OZKAN DEV - STAGE 2: BUILD"; echo "═══════════════════════════════════════"
-            echo "✓ Build completed!"; echo "═══════════════════════════════════════"; echo ""
+            def moduleCode = libraryResource('com/ozkan/pipeline/modules/Build/DevBuild.groovy')
+            evaluate(moduleCode)
         }
+
+        // Stage 3: Test
         stage('3. Test') {
-            echo ""; echo "═══════════════════════════════════════"
-            echo "🧪 OZKAN DEV - STAGE 3: TEST"; echo "═══════════════════════════════════════"
-            echo "✓ Tests passed!"; echo "═══════════════════════════════════════"; echo ""
+            def moduleCode = libraryResource('com/ozkan/pipeline/modules/Test/DevTest.groovy')
+            evaluate(moduleCode)
         }
+
+        // Stage 4: Deploy
         stage('4. Deploy') {
-            echo ""; echo "═══════════════════════════════════════"
-            echo "🚀 OZKAN DEV - STAGE 4: DEPLOY"; echo "═══════════════════════════════════════"
-            echo "✓ Deployed to dev.ozkan.local:8080"; echo "═══════════════════════════════════════"; echo ""
+            def moduleCode = libraryResource('com/ozkan/pipeline/modules/Deploy/DevDeploy.groovy')
+            evaluate(moduleCode)
         }
+
+        // Stage 5: Smoke Test
         stage('5. Smoke Test') {
-            echo ""; echo "═══════════════════════════════════════"
-            echo "💨 OZKAN DEV - STAGE 5: SMOKE TEST"; echo "═══════════════════════════════════════"
-            echo "✓ Smoke tests passed!"
-            if (customMessage) {
-                echo "✓ ${customMessage}"
-            }
-            echo "═══════════════════════════════════════"; echo ""
+            def moduleCode = libraryResource('com/ozkan/pipeline/modules/SmokeTest/DevSmokeTest.groovy')
+            evaluate(moduleCode)
         }
-        stage('6. Validation') {
-            echo ""; echo "═══════════════════════════════════════"
-            echo "✅ OZKAN DEV - STAGE 6: VALIDATION"; echo "═══════════════════════════════════════"
-            echo "✓ Validation passed!"; echo "═══════════════════════════════════════"; echo ""
+
+        // Stage 6: Validation
+        stage('6. Post-Deploy Validation') {
+            def moduleCode = libraryResource('com/ozkan/pipeline/modules/PostDeployValidation/DevValidation.groovy')
+            evaluate(moduleCode)
         }
-        echo ""; echo "════════════════════════════════════════════════"
+
+        // Success message
+        echo ""
+        echo "════════════════════════════════════════════════"
         echo "✓✓✓ OZKAN DEV PIPELINE - SUCCESS! ✓✓✓"
-        echo "Project: ${projectName}"
+        echo "════════════════════════════════════════════════"
+        echo "Project: ${CFG.projectName}"
         echo "Build: #${env.BUILD_NUMBER}"
-        echo "════════════════════════════════════════════════"; echo ""
+        if (env.DEPLOY_URL) {
+            echo "Deployment: ${env.DEPLOY_URL}"
+        }
+        if (CFG.slackChannel) {
+            echo "Notification: ${CFG.slackChannel}"
+        }
+        echo "════════════════════════════════════════════════"
+        echo ""
     }
 }

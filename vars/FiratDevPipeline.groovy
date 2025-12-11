@@ -1,6 +1,6 @@
 /**
- * Firat Development Pipeline - DEMO VERSION
- * Simple 6-stage demo pipeline that only prints messages
+ * Firat Development Pipeline - MODULAR VERSION
+ * Uses separate module files for each stage
  */
 def call(body) {
     // Parse config
@@ -9,104 +9,57 @@ def call(body) {
     body.delegate = config
     body()
 
-    // Get config values
-    def projectName = config.projectName ?: 'firat-app'
-    def slackChannel = config.slackChannel ?: '#deployments'
-    def dockerRegistry = config.dockerRegistry ?: ''
-    def grafanaUrl = config.grafanaUrl ?: ''
-    def showGitInfo = config.showGitInfo ?: false
-    def customMessage = config.customMessage ?: ''
+    // Create CFG map with all configuration
+    def CFG = [
+        'projectName': config.projectName ?: 'firat-app',
+        'slackChannel': config.slackChannel ?: '#deployments',
+        'dockerRegistry': config.dockerRegistry ?: '',
+        'grafanaUrl': config.grafanaUrl ?: '',
+        'showGitInfo': config.showGitInfo ?: false,
+        'customMessage': config.customMessage ?: '',
+        'minTestCoverage': config.minTestCoverage ?: '80%',
+        'testFramework': config.testFramework ?: 'JUnit',
+        'deploy.dev_host': config.'deploy.dev_host' ?: 'dev.firat.local',
+        'deploy.dev_port': config.'deploy.dev_port' ?: '8080',
+        'smoketest.endpoints': config.'smoketest.endpoints' ?: ['/health', '/api/status', '/api/info']
+    ]
 
-    // Simple script-based pipeline without agent
+    // Pipeline execution
     node {
+        // Stage 1: Checkout
         stage('1. Checkout') {
-            echo ""
-            echo "═══════════════════════════════════════"
-            echo "📥 FIRAT DEV - STAGE 1: CHECKOUT"
-            echo "═══════════════════════════════════════"
-            echo "✓ Project: ${projectName}"
-            if (showGitInfo) {
-                echo "✓ Branch: main"
-                echo "✓ Repository: github.com/firat-bcfm/mpl-design"
-            }
-            echo "✓ Checkout completed successfully!"
-            echo "═══════════════════════════════════════"
-            echo ""
+            def moduleCode = libraryResource('com/firat/pipeline/modules/Checkout/DevCheckout.groovy')
+            evaluate(moduleCode)
         }
 
+        // Stage 2: Build
         stage('2. Build') {
-            echo ""
-            echo "═══════════════════════════════════════"
-            echo "🔨 STAGE 2: BUILD"
-            echo "═══════════════════════════════════════"
-            echo "✓ Starting Maven build..."
-            echo "✓ Compiling source code..."
-            echo "✓ Creating JAR/WAR file..."
-            echo "✓ Build completed successfully!"
-            echo "═══════════════════════════════════════"
-            echo ""
+            def moduleCode = libraryResource('com/firat/pipeline/modules/Build/DevBuild.groovy')
+            evaluate(moduleCode)
         }
 
+        // Stage 3: Test
         stage('3. Test') {
-            echo ""
-            echo "═══════════════════════════════════════"
-            echo "🧪 STAGE 3: TEST"
-            echo "═══════════════════════════════════════"
-            echo "✓ Running unit tests..."
-            echo "✓ Running integration tests..."
-            echo "✓ All tests passed!"
-            echo "✓ Test coverage: 85%"
-            echo "═══════════════════════════════════════"
-            echo ""
+            def moduleCode = libraryResource('com/firat/pipeline/modules/Test/DevTest.groovy')
+            evaluate(moduleCode)
         }
 
+        // Stage 4: Deploy
         stage('4. Deploy') {
-            echo ""
-            echo "═══════════════════════════════════════"
-            echo "🚀 FIRAT DEV - STAGE 4: DEPLOY"
-            echo "═══════════════════════════════════════"
-            if (dockerRegistry) {
-                echo "✓ Docker Registry: ${dockerRegistry}"
-                echo "✓ Pushing image to registry..."
-            }
-            echo "✓ Deploying to development environment..."
-            echo "✓ Target: dev.firat.local:8080"
-            echo "✓ Deployment completed!"
-            echo "═══════════════════════════════════════"
-            echo ""
+            def moduleCode = libraryResource('com/firat/pipeline/modules/Deploy/DevDeploy.groovy')
+            evaluate(moduleCode)
         }
 
+        // Stage 5: Smoke Test
         stage('5. Smoke Test') {
-            echo ""
-            echo "═══════════════════════════════════════"
-            echo "💨 STAGE 5: SMOKE TEST"
-            echo "═══════════════════════════════════════"
-            echo "✓ Testing endpoint: /health"
-            echo "  → Status: 200 OK"
-            echo "✓ Testing endpoint: /api/status"
-            echo "  → Status: 200 OK"
-            echo "✓ Testing endpoint: /api/info"
-            echo "  → Status: 200 OK"
-            echo "✓ All smoke tests passed!"
-            echo "═══════════════════════════════════════"
-            echo ""
+            def moduleCode = libraryResource('com/firat/pipeline/modules/SmokeTest/DevSmokeTest.groovy')
+            evaluate(moduleCode)
         }
 
+        // Stage 6: Validation
         stage('6. Post-Deploy Validation') {
-            echo ""
-            echo "═══════════════════════════════════════"
-            echo "✅ FIRAT DEV - STAGE 6: VALIDATION"
-            echo "═══════════════════════════════════════"
-            echo "✓ Checking application health..."
-            if (grafanaUrl) {
-                echo "✓ Monitoring: ${grafanaUrl}"
-            }
-            echo "✓ All validations passed!"
-            if (customMessage) {
-                echo "✓ ${customMessage}"
-            }
-            echo "═══════════════════════════════════════"
-            echo ""
+            def moduleCode = libraryResource('com/firat/pipeline/modules/PostDeployValidation/DevValidation.groovy')
+            evaluate(moduleCode)
         }
 
         // Success message
@@ -114,14 +67,16 @@ def call(body) {
         echo "════════════════════════════════════════════════"
         echo "✓✓✓ FIRAT DEV PIPELINE - SUCCESS! ✓✓✓"
         echo "════════════════════════════════════════════════"
-        echo "Project: ${projectName}"
+        echo "Project: ${CFG.projectName}"
         echo "Build: #${env.BUILD_NUMBER}"
-        echo "Deployment: http://dev.firat.local:8080"
-        if (slackChannel) {
-            echo "Notification: ${slackChannel}"
+        if (env.DEPLOY_URL) {
+            echo "Deployment: ${env.DEPLOY_URL}"
         }
-        if (grafanaUrl) {
-            echo "Monitoring: ${grafanaUrl}"
+        if (CFG.slackChannel) {
+            echo "Notification: ${CFG.slackChannel}"
+        }
+        if (CFG.grafanaUrl) {
+            echo "Monitoring: ${CFG.grafanaUrl}"
         }
         echo "════════════════════════════════════════════════"
         echo ""

@@ -23,38 +23,38 @@ def call(body) {
     node {
         stage('1. Checkout') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Checkout/ProdCheckout.groovy')
-            def binding = new Binding([CFG: CFG, env: env])
-            new GroovyShell(binding).evaluate(moduleCode)
+            this.binding.setVariable('CFG', CFG)
+            evaluate(moduleCode)
         }
 
         stage('2. Build') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Build/ProdBuild.groovy')
-            def binding = new Binding([CFG: CFG, env: env])
-            new GroovyShell(binding).evaluate(moduleCode)
+            this.binding.setVariable('CFG', CFG)
+            evaluate(moduleCode)
         }
 
         stage('3. Test') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Test/ProdTest.groovy')
-            def binding = new Binding([CFG: CFG, env: env])
-            new GroovyShell(binding).evaluate(moduleCode)
+            this.binding.setVariable('CFG', CFG)
+            evaluate(moduleCode)
         }
 
         stage('4. Deploy') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/Deploy/ProdDeploy.groovy')
-            def binding = new Binding([CFG: CFG, env: env])
-            new GroovyShell(binding).evaluate(moduleCode)
+            this.binding.setVariable('CFG', CFG)
+            evaluate(moduleCode)
         }
 
         stage('5. Smoke Test') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/SmokeTest/ProdSmokeTest.groovy')
-            def binding = new Binding([CFG: CFG, env: env])
-            new GroovyShell(binding).evaluate(moduleCode)
+            this.binding.setVariable('CFG', CFG)
+            evaluate(moduleCode)
         }
 
         stage('6. Post-Deploy Validation') {
             def moduleCode = libraryResource('com/firat/pipeline/modules/PostDeployValidation/ProdValidation.groovy')
-            def binding = new Binding([CFG: CFG, env: env])
-            new GroovyShell(binding).evaluate(moduleCode)
+            this.binding.setVariable('CFG', CFG)
+            evaluate(moduleCode)
         }
 
         echo ""

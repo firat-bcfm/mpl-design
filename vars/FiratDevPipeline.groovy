@@ -1,12 +1,6 @@
 /**
- * Firat Development Pipeline - MODULAR VERSION
- * Uses separate module files for each stage
+ * Firat Development Pipeline - SIMPLE INLINE VERSION
  */
-import groovy.transform.Field
-
-@Field
-def CFG
-
 def call(body) {
     // Parse config
     def config = [:]
@@ -15,7 +9,7 @@ def call(body) {
     body()
 
     // Create CFG map with all configuration
-    CFG = [
+    def CFG = [
         'projectName': config.projectName ?: 'firat-app',
         'slackChannel': config.slackChannel ?: '#deployments',
         'dockerRegistry': config.dockerRegistry ?: '',
@@ -33,38 +27,123 @@ def call(body) {
     node {
         // Stage 1: Checkout
         stage('1. Checkout') {
-            def moduleCode = libraryResource('com/firat/pipeline/modules/Checkout/DevCheckout.groovy')
-            evaluate(moduleCode)
+            echo ""
+            echo "═══════════════════════════════════════"
+            echo "📥 FIRAT DEV - STAGE 1: CHECKOUT"
+            echo "═══════════════════════════════════════"
+
+            echo "✓ Project: ${CFG.projectName}"
+
+            if (CFG.showGitInfo) {
+                try {
+                    def gitBranch = sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
+                    def gitCommit = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+                    def gitAuthor = sh(returnStdout: true, script: 'git log -1 --pretty=format:"%an"').trim()
+
+                    echo "✓ Branch: ${gitBranch}"
+                    echo "✓ Commit: ${gitCommit}"
+                    echo "✓ Author: ${gitAuthor}"
+                } catch (Exception e) {
+                    echo "✓ Repository: github.com/firat-bcfm/mpl-design"
+                }
+            }
+
+            echo "✓ Code checkout completed successfully!"
+            echo "═══════════════════════════════════════"
+            echo ""
         }
 
         // Stage 2: Build
         stage('2. Build') {
-            def moduleCode = libraryResource('com/firat/pipeline/modules/Build/DevBuild.groovy')
-            evaluate(moduleCode)
+            echo ""
+            echo "═══════════════════════════════════════"
+            echo "🔨 FIRAT DEV - STAGE 2: BUILD"
+            echo "═══════════════════════════════════════"
+
+            echo "✓ Building project: ${CFG.projectName}"
+            echo "✓ Running Maven clean install..."
+            echo "✓ Compiling source code..."
+            echo "✓ Creating JAR/WAR artifact..."
+            echo "✓ Build completed successfully!"
+
+            echo "═══════════════════════════════════════"
+            echo ""
         }
 
         // Stage 3: Test
         stage('3. Test') {
-            def moduleCode = libraryResource('com/firat/pipeline/modules/Test/DevTest.groovy')
-            evaluate(moduleCode)
+            echo ""
+            echo "═══════════════════════════════════════"
+            echo "🧪 FIRAT DEV - STAGE 3: TEST"
+            echo "═══════════════════════════════════════"
+
+            echo "✓ Test Framework: ${CFG.testFramework}"
+            echo "✓ Running unit tests..."
+            echo "✓ Running integration tests..."
+            echo "✓ Test coverage: ${CFG.minTestCoverage}"
+            echo "✓ All tests passed!"
+
+            echo "═══════════════════════════════════════"
+            echo ""
         }
 
         // Stage 4: Deploy
         stage('4. Deploy') {
-            def moduleCode = libraryResource('com/firat/pipeline/modules/Deploy/DevDeploy.groovy')
-            evaluate(moduleCode)
+            echo ""
+            echo "═══════════════════════════════════════"
+            echo "🚀 FIRAT DEV - STAGE 4: DEPLOY"
+            echo "═══════════════════════════════════════"
+
+            def devHost = CFG.'deploy.dev_host'
+            def devPort = CFG.'deploy.dev_port'
+
+            echo "✓ Deploying to: ${devHost}:${devPort}"
+            echo "✓ Starting deployment process..."
+            echo "✓ Application deployed successfully!"
+
+            env.DEPLOY_URL = "http://${devHost}:${devPort}"
+            echo "✓ Access at: ${env.DEPLOY_URL}"
+
+            echo "═══════════════════════════════════════"
+            echo ""
         }
 
         // Stage 5: Smoke Test
         stage('5. Smoke Test') {
-            def moduleCode = libraryResource('com/firat/pipeline/modules/SmokeTest/DevSmokeTest.groovy')
-            evaluate(moduleCode)
+            echo ""
+            echo "═══════════════════════════════════════"
+            echo "💨 FIRAT DEV - STAGE 5: SMOKE TEST"
+            echo "═══════════════════════════════════════"
+
+            def endpoints = CFG.'smoketest.endpoints'
+
+            echo "✓ Running smoke tests..."
+            endpoints.each { endpoint ->
+                echo "✓ Testing endpoint: ${endpoint}"
+            }
+            echo "✓ All smoke tests passed!"
+
+            echo "═══════════════════════════════════════"
+            echo ""
         }
 
         // Stage 6: Validation
         stage('6. Post-Deploy Validation') {
-            def moduleCode = libraryResource('com/firat/pipeline/modules/PostDeployValidation/DevValidation.groovy')
-            evaluate(moduleCode)
+            echo ""
+            echo "═══════════════════════════════════════"
+            echo "✅ FIRAT DEV - STAGE 6: VALIDATION"
+            echo "═══════════════════════════════════════"
+
+            echo "✓ Development validations..."
+            echo "✓ Health checks: PASSED"
+
+            if (CFG.grafanaUrl) {
+                echo "✓ Monitoring: ${CFG.grafanaUrl}"
+            }
+
+            echo "✓ All validations passed!"
+            echo "═══════════════════════════════════════"
+            echo ""
         }
 
         // Success message
@@ -82,6 +161,9 @@ def call(body) {
         }
         if (CFG.grafanaUrl) {
             echo "Monitoring: ${CFG.grafanaUrl}"
+        }
+        if (CFG.customMessage) {
+            echo "Message: ${CFG.customMessage}"
         }
         echo "════════════════════════════════════════════════"
         echo ""

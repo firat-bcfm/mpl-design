@@ -1,34 +1,10 @@
 @Library('mpl') _
 
 /**
- * Firat Development Pipeline
- *
- * This Jenkinsfile uses the FiratDevPipeline shared library
- * to deploy to the development environment.
+ * Firat Development Pipeline - DEMO
+ * Simple demo that shows 6-stage pipeline execution
  */
 
 FiratDevPipeline {
-    // Maven Configuration
-    setProperty('maven.tool_version', 'Maven 3')
-    setProperty('maven.settings_path', '')
-
-    // Deployment Configuration
-    setProperty('deploy.dev_host', 'dev.firat.local')
-    setProperty('deploy.dev_port', '8080')
-
-    // SSH Deployment (if enabled)
-    setProperty('deploy.ssh_enabled', false)
-    setProperty('deploy.ssh_user', 'deploy')
-    setProperty('deploy.path', '/opt/firat-dev')
-
-    // Smoke Test Configuration
-    setProperty('smoketest.endpoints', ['/health', '/api/status', '/api/info'])
-    setProperty('smoketest.max_retries', 10)
-    setProperty('smoketest.retry_delay', 5)
-
-    // Validation Configuration
-    setProperty('validation.check_logs', false)
-
-    // Test Configuration
-    setProperty('test.integration_enabled', false)
+    // Demo - no configuration needed
 }

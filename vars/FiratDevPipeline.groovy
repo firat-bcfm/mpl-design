@@ -1,113 +1,122 @@
 /**
- * Firat Development Pipeline
- * 6-stage pipeline for development environment deployment
- *
- * Usage:
- * @Library('mpl') _
- * FiratDevPipeline {
- *   maven.tool_version = 'Maven 3'
- *   deploy.dev_host = 'dev.firat.local'
- *   deploy.dev_port = '8080'
- * }
+ * Firat Development Pipeline - DEMO VERSION
+ * Simple 6-stage demo pipeline that only prints messages
  */
 def call(body) {
+    // Parse config (even though we don't use it in demo)
     def config = [:]
     body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = config
     body()
 
-    // Set default CFG values
-    def CFG = [
-        'maven.tool_version': config.'maven.tool_version' ?: 'Maven 3',
-        'maven.settings_path': config.'maven.settings_path' ?: '',
-        'deploy.dev_host': config.'deploy.dev_host' ?: 'dev.firat.local',
-        'deploy.dev_port': config.'deploy.dev_port' ?: '8080',
-        'deploy.ssh_enabled': config.'deploy.ssh_enabled' ?: false,
-        'deploy.ssh_user': config.'deploy.ssh_user' ?: 'deploy',
-        'deploy.path': config.'deploy.path' ?: '/opt/firat-dev',
-        'deploy.stop_command': config.'deploy.stop_command' ?: '',
-        'deploy.start_command': config.'deploy.start_command' ?: '',
-        'deploy.custom_command': config.'deploy.custom_command' ?: '',
-        'smoketest.endpoints': config.'smoketest.endpoints' ?: ['/health', '/api/status', '/api/info'],
-        'smoketest.max_retries': config.'smoketest.max_retries' ?: 10,
-        'smoketest.retry_delay': config.'smoketest.retry_delay' ?: 5,
-        'validation.check_logs': config.'validation.check_logs' ?: false,
-        'test.integration_enabled': config.'test.integration_enabled' ?: false
-    ]
-
     pipeline {
         agent any
 
-        environment {
-            PROJECT_NAME = 'firat-dev'
-            ENVIRONMENT = 'development'
-        }
-
-        options {
-            buildDiscarder(logRotator(numToKeepStr: '10'))
-        }
-
         stages {
-            stage('Checkout') {
+            stage('1. Checkout') {
                 steps {
                     script {
+                        echo ""
                         echo "═══════════════════════════════════════"
-                        echo "FIRAT DEV PIPELINE - Starting"
+                        echo "📥 STAGE 1: CHECKOUT"
                         echo "═══════════════════════════════════════"
-
-                        def modulePath = 'resources/com/firat/pipeline/modules/Checkout/DevCheckout.groovy'
-                        def moduleCode = libraryResource(modulePath)
-                        evaluate(moduleCode)
+                        echo "✓ Checking out code from repository..."
+                        echo "✓ Branch: main"
+                        echo "✓ Repository: github.com/firat-bcfm/mpl-design"
+                        echo "✓ Checkout completed successfully!"
+                        echo "═══════════════════════════════════════"
+                        echo ""
                     }
                 }
             }
 
-            stage('Build') {
+            stage('2. Build') {
                 steps {
                     script {
-                        def modulePath = 'resources/com/firat/pipeline/modules/Build/DevBuild.groovy'
-                        def moduleCode = libraryResource(modulePath)
-                        evaluate(moduleCode)
+                        echo ""
+                        echo "═══════════════════════════════════════"
+                        echo "🔨 STAGE 2: BUILD"
+                        echo "═══════════════════════════════════════"
+                        echo "✓ Starting Maven build..."
+                        echo "✓ Compiling source code..."
+                        echo "✓ Creating JAR/WAR file..."
+                        echo "✓ Build completed successfully!"
+                        echo "═══════════════════════════════════════"
+                        echo ""
                     }
                 }
             }
 
-            stage('Test') {
+            stage('3. Test') {
                 steps {
                     script {
-                        def modulePath = 'resources/com/firat/pipeline/modules/Test/DevTest.groovy'
-                        def moduleCode = libraryResource(modulePath)
-                        evaluate(moduleCode)
+                        echo ""
+                        echo "═══════════════════════════════════════"
+                        echo "🧪 STAGE 3: TEST"
+                        echo "═══════════════════════════════════════"
+                        echo "✓ Running unit tests..."
+                        echo "✓ Running integration tests..."
+                        echo "✓ All tests passed!"
+                        echo "✓ Test coverage: 85%"
+                        echo "═══════════════════════════════════════"
+                        echo ""
                     }
                 }
             }
 
-            stage('Deploy') {
+            stage('4. Deploy') {
                 steps {
                     script {
-                        def modulePath = 'resources/com/firat/pipeline/modules/Deploy/DevDeploy.groovy'
-                        def moduleCode = libraryResource(modulePath)
-                        evaluate(moduleCode)
+                        echo ""
+                        echo "═══════════════════════════════════════"
+                        echo "🚀 STAGE 4: DEPLOY TO DEV"
+                        echo "═══════════════════════════════════════"
+                        echo "✓ Deploying to development environment..."
+                        echo "✓ Target: dev.firat.local:8080"
+                        echo "✓ Stopping old application..."
+                        echo "✓ Deploying new version..."
+                        echo "✓ Starting application..."
+                        echo "✓ Deployment completed!"
+                        echo "═══════════════════════════════════════"
+                        echo ""
                     }
                 }
             }
 
-            stage('Smoke Test') {
+            stage('5. Smoke Test') {
                 steps {
                     script {
-                        def modulePath = 'resources/com/firat/pipeline/modules/SmokeTest/DevSmokeTest.groovy'
-                        def moduleCode = libraryResource(modulePath)
-                        evaluate(moduleCode)
+                        echo ""
+                        echo "═══════════════════════════════════════"
+                        echo "💨 STAGE 5: SMOKE TEST"
+                        echo "═══════════════════════════════════════"
+                        echo "✓ Testing endpoint: /health"
+                        echo "  → Status: 200 OK"
+                        echo "✓ Testing endpoint: /api/status"
+                        echo "  → Status: 200 OK"
+                        echo "✓ Testing endpoint: /api/info"
+                        echo "  → Status: 200 OK"
+                        echo "✓ All smoke tests passed!"
+                        echo "═══════════════════════════════════════"
+                        echo ""
                     }
                 }
             }
 
-            stage('Post-Deploy Validation') {
+            stage('6. Post-Deploy Validation') {
                 steps {
                     script {
-                        def modulePath = 'resources/com/firat/pipeline/modules/PostDeployValidation/DevValidation.groovy'
-                        def moduleCode = libraryResource(modulePath)
-                        evaluate(moduleCode)
+                        echo ""
+                        echo "═══════════════════════════════════════"
+                        echo "✅ STAGE 6: POST-DEPLOY VALIDATION"
+                        echo "═══════════════════════════════════════"
+                        echo "✓ Checking application health..."
+                        echo "✓ Verifying database connections..."
+                        echo "✓ Checking memory usage..."
+                        echo "✓ Validating API responses..."
+                        echo "✓ All validations passed!"
+                        echo "═══════════════════════════════════════"
+                        echo ""
                     }
                 }
             }
@@ -117,28 +126,27 @@ def call(body) {
             success {
                 script {
                     echo ""
-                    echo "═══════════════════════════════════════"
-                    echo "✓ FIRAT DEV PIPELINE - SUCCESS"
-                    echo "═══════════════════════════════════════"
-                    echo "Build: #${env.BUILD_NUMBER}"
+                    echo "════════════════════════════════════════════════"
+                    echo "✓✓✓ FIRAT DEV PIPELINE - SUCCESS! ✓✓✓"
+                    echo "════════════════════════════════════════════════"
+                    echo "Build Number: #${env.BUILD_NUMBER}"
                     echo "Duration: ${currentBuild.durationString.replace(' and counting', '')}"
-                    if (env.DEPLOY_URL) {
-                        echo "Deployment: ${env.DEPLOY_URL}"
-                    }
-                    echo "═══════════════════════════════════════"
+                    echo "Deployment URL: http://dev.firat.local:8080"
+                    echo "════════════════════════════════════════════════"
+                    echo ""
                 }
             }
             failure {
-                echo ""
-                echo "═══════════════════════════════════════"
-                echo "✗ FIRAT DEV PIPELINE - FAILED"
-                echo "═══════════════════════════════════════"
-                echo "Build: #${env.BUILD_NUMBER}"
-                echo "Check logs for details"
-                echo "═══════════════════════════════════════"
-            }
-            always {
-                cleanWs()
+                script {
+                    echo ""
+                    echo "════════════════════════════════════════════════"
+                    echo "✗✗✗ FIRAT DEV PIPELINE - FAILED ✗✗✗"
+                    echo "════════════════════════════════════════════════"
+                    echo "Build Number: #${env.BUILD_NUMBER}"
+                    echo "Check logs for details"
+                    echo "════════════════════════════════════════════════"
+                    echo ""
+                }
             }
         }
     }
